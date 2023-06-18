@@ -1,14 +1,14 @@
 package src.models
 
 open class ResponseData {
-    lateinit var NodeServers: Array<String>
+    lateinit var nodeServers: Array<String>
     @JvmField
-    var RespMessage: String? = null
+    var respMessage: String? = null
     @JvmField
-    var RespCode: Int? = null
-    var Data: Map<String, Any>? = null
-    var Balance:Float? = null
-    lateinit var NodeWallets: Array<WalletSyncData>
+    var respCode: Int? = null
+    var data: Map<String, Any>? = null
+    var balance:Float? = null
+    lateinit var nodeWallets: Array<WalletSyncData>
 
 }
 

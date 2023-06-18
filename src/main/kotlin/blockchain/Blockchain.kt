@@ -145,10 +145,10 @@ class Blockchain {
         val allNodes: Array<String> = node.GetAllNodes()
         for (server in allNodes) {
             val resposne: ResponseData = netUtils.SendRequest(server, requestData)
-            println("node balance ccc   " + (resposne.Data?.get("Balance") ?: 0))
-            println("NOde Response  message   " + resposne.RespMessage)
-            println("NOde Response  code   " + resposne.RespCode)
-            println("NOde Response  balance   " + resposne.Balance)
+            println("node balance ccc   " + (resposne.data?.get("Balance") ?: 0))
+            println("NOde Response  message   " + resposne.respMessage)
+            println("NOde Response  code   " + resposne.respCode)
+            println("NOde Response  balance   " + resposne.balance)
         }
         //    Consencus.Vote resultVote = consencus.Vote(datalist.toArray());
 //    System.out.println("vote count : "+ resultVote.Count);

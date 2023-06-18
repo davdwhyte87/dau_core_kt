@@ -31,7 +31,9 @@ class Wallet {
         // if the client application (mobile app eg.) already generated an address, then there is no need to generate one
         if (walletReq.walletAddress == null) {
             // we get the wallet address by hashing the password 2times
-            walletAddress = secUtils.GenerateHash(walletReq.password + walletReq.walletName)!!
+            println("Generating wallet address")
+            walletAddress = secUtils.GenerateHash(walletReq.password + walletReq.walletName+secUtils.GenerateRandString())!!
+
         } else {
             walletAddress = walletReq.walletAddress!!
         }
@@ -72,13 +74,13 @@ class Wallet {
 
         // broadcast wallet creation
         val requestData = RequestData()
-        val broadCast = BroadCast()
-        requestData.action = "CREATE_WALLET"
-        requestData.createWallet.isBroadcasted = true
-        requestData.createWallet.walletAddress = walletAddress
-        requestData.createWallet.walletName = walletReq.walletName
-        requestData.createWallet.password = walletReq.password
-        broadCast.BCreateWallet(requestData)
+//        val broadCast = BroadCast()
+//        requestData.action = "CREATE_WALLET"
+//        requestData.createWallet.isBroadcasted = true
+//        requestData.createWallet.walletAddress = walletAddress
+//        requestData.createWallet.walletName = walletReq.walletName
+//        requestData.createWallet.password = walletReq.password
+//        broadCast.BCreateWallet(requestData)
         println("returning wallet address")
         return walletAddress
     }

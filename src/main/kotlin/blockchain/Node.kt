@@ -2,6 +2,7 @@ package src.blockchain
 
 import com.google.gson.Gson
 import io.github.cdimascio.dotenv.Dotenv
+import kotlinx.coroutines.*
 import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
@@ -78,35 +79,52 @@ class Node {
 
 //                System.out.println(input.read());
                     if (read != -1) {
-                        val outData = String(buffer, 0, read)
-                        //                    RequestData requestData = SerializationUtils.deserialize(input);
+//                        GlobalScope.launch {
+//                        }
+                        val fixedThreadPoolContext = newFixedThreadPoolContext(100, "background")
+                        val scope = CoroutineScope(SupervisorJob())
+
+                        scope.launch {
+                            withContext(fixedThreadPoolContext) {
+
+                                val outData = String(buffer, 0, read)
+                                //                    RequestData requestData = SerializationUtils.deserialize(input);
 //                    System.out.println(requestData.Action);
-                        // parse data from tcp in text format to json object
-                        val jsonParser = JSONParser()
-                        val requestObjJson: JSONObject? = null
-                        try {
+                                // parse data from tcp in text format to json object
+                                val jsonParser = JSONParser()
+                                val requestObjJson: JSONObject? = null
+                                try {
 //                        requestObjJson = (JSONObject) jsonParser.parse(outData);
 //                        String action = (String) requestObjJson.get("Action");
 //                        JSONObject reqData = (JSONObject) requestObjJson.get("Data");
 //                        String walletAddress = (String) reqData.get("WalletAddress");
-                            val gson = Gson()
-                            val requestData: RequestData = gson.fromJson(outData, RequestData::class.java)
-                            print("Request data:$requestData")
-                            // perform action based on "actions" in reques
-                            Route(requestData, writer)
-                            input.close()
-                            //                        System.out.println(action+"{{{{{}}}}}}}");
+                                    val gson = Gson()
+                                    val requestData: RequestData = gson.fromJson(outData, RequestData::class.java)
+                                    print("Request data:$requestData")
+                                    // perform action based on "actions" in reques
+                                    delay(10000)
+                                    Route(requestData, writer)
+                                    input.close()
+                                    //                        System.out.println(action+"{{{{{}}}}}}}");
 //                        System.out.println(walletAddress+"wallet address {{{}}}}}}}");
-                        } catch (e: Exception) {
-                            val gson = Gson()
-                            val responseData =ResponseData()
-                            responseData.RespMessage = "Error occurred"
+                                } catch (e: Exception) {
+                                    val gson = Gson()
+                                    val responseData = ResponseData()
+                                    responseData.respMessage = "Error occurred"
 //                            val respString = gson.toJson(responseData)
-                            val netUtils = NetUtils()
-                            netUtils.SendResponse(writer, responseData)
-                            e.printStackTrace()
+                                    val netUtils = NetUtils()
+                                    netUtils.SendResponse(writer, responseData)
+                                    e.printStackTrace()
+                                }
+                                //
+                                System.out.println(outData);
+                            }
+//                        runBlocking {
+//                            launch{
+//
+//                            }
+//                        }
                         }
-                        //                    System.out.println(outData);
                     }
                     //                writer.println("kdkmd");
                 }
@@ -150,6 +168,10 @@ class Node {
         }
     }
 
+    fun HandleGetBalance(writer: PrintWriter?, requestData: RequestData){
+
+    }
+
     fun HandleGetBalance(writer: PrintWriter?, requestData: RequestData) {
         val address: String? = requestData.balance.walletAddress
         val blockchain = Blockchain()
@@ -158,12 +180,12 @@ class Node {
         val netUtils = NetUtils()
         // prepare response
         val responseData = ResponseData()
-        responseData.RespCode = 200
-        responseData.RespMessage = "oK"
-        responseData.Balance = balance
+        responseData.respCode = 200
+        responseData.respMessage = "oK"
+        responseData.balance = balance
         val dataMap: MutableMap<String, Any> = HashMap()
         dataMap["Balance"] = balance
-        responseData.Data = dataMap
+        responseData.data = dataMap
 
         // send reponse
         if (writer != null) {
@@ -181,12 +203,12 @@ class Node {
         val netUtils = NetUtils()
         // prepare response
         val responseData = ResponseData()
-        responseData.RespCode = 200
-        responseData.RespMessage = "oK"
-        responseData.Balance = balance
+        responseData.respCode = 200
+        responseData.respMessage = "oK"
+        responseData.balance = balance
         val dataMap: MutableMap<String, Any> = HashMap()
         dataMap["Balance"] = balance
-        responseData.Data = dataMap
+        responseData.data = dataMap
 
         // send reponse
         if (writer != null) {
@@ -208,15 +230,28 @@ class Node {
         val walletAddress: String? = wallet.CreateWallet(requestData.createWallet)
         val netUtils = NetUtils()
         val responseData = ResponseData()
-        responseData.RespCode = 200
-        responseData.RespMessage = "oK"
+        responseData.respCode = 200
+        responseData.respMessage = "oK"
         val data: MutableMap<String, Any> = HashMap()
-        data["WalletName"] = walletAddress!!
+        if (walletAddress ==null){
+            responseData.respCode = 500
+            responseData.respMessage = "oK"
+        }else {
+            data["WalletAddress"] = walletAddress
+        }
         println(data)
-        responseData.Data = data.toMap()
+        responseData.data = data.toMap()
         if (writer != null) {
             netUtils.SendResponse(writer, responseData)
         }
+
+        // send broadcast
+        requestData.action = "CREATE_WALLET"
+        requestData.createWallet.isBroadcasted = true
+        requestData.createWallet.walletAddress = walletAddress
+        requestData.createWallet.walletName = createWalletReq.WalletName
+        requestData.createWallet.password = createWalletReq.Password
+        broadCast.BCreateWallet(requestData)
     }
 
     fun HandleGetServers(writer: PrintWriter) {
@@ -236,7 +271,7 @@ class Node {
         val netUtils = NetUtils()
         val wallets: Array<WalletSyncData> = wallet.GetWallets()
         val responseData = ResponseData()
-        responseData.NodeWallets = wallets
+        responseData.nodeWallets = wallets
         if (writer != null) {
             netUtils.SendResponse(writer, responseData)
         }
@@ -251,8 +286,8 @@ class Node {
             if (requestData.transfer.senderAddress?.let { blockchain.IsBlockExists(it, requestData.transfer.blockID) } == true) {
                 println("ALREADY EXISTS ")
                 val responseData = ResponseData()
-                responseData.RespCode = 200
-                responseData.RespMessage = "Ok"
+                responseData.respCode = 200
+                responseData.respMessage = "Ok"
                 if (writer != null) {
                     netUtils.SendResponse(writer, responseData)
                 }
@@ -266,16 +301,16 @@ class Node {
                 requestData.transfer.amount, requestData.transfer.isBroadcasted, requestData.transfer.blockID
             )
             val responseData = ResponseData()
-            responseData.RespCode = 200
-            responseData.RespMessage = "Ok"
+            responseData.respCode = 200
+            responseData.respMessage = "Ok"
             if (writer != null) {
                 netUtils.SendResponse(writer, responseData)
             }
         } catch (e: Exception) {
             println("Error transfering coins .....  $e")
             val responseData = ResponseData()
-            responseData.RespCode = 500
-            responseData.RespMessage = "error sys ....." + e.message
+            responseData.respCode = 500
+            responseData.respMessage = "error sys ....." + e.message
             if (writer != null) {
                 netUtils.SendResponse(writer, responseData)
             }
@@ -373,7 +408,7 @@ class Node {
                 val requestData = RequestData()
                 requestData.action = "GET_NODE_WALLETS"
                 val responseData: ResponseData = netUtils.SendRequest(server, requestData)
-                val wallets: Array<WalletSyncData> = responseData.NodeWallets
+                val wallets: Array<WalletSyncData> = responseData.nodeWallets
 
                 // loop through wallet and check if there is any it already exists in walletList if not, add it
                 for (syncData in wallets) {

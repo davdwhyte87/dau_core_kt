@@ -43,8 +43,8 @@ class NetUtils {
             socket.close()
         } catch (e: Exception) {
 //                e.printStackTrace();
-            errResponse.RespCode = 500
-            errResponse.RespMessage = e.message
+            errResponse.respCode = 500
+            errResponse.respMessage = e.message
             println(e)
 
             return errResponse

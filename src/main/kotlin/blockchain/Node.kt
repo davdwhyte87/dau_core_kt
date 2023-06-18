@@ -165,10 +165,46 @@ class Node {
                 println("GET NODE WALLETS ACTION >>>>>>>>>>>>>")
                 HandleGetWallets(writer, requestData)
             }
+
+            "GET_WALLET_CHAIN" -> {
+                println("GET WALLET CHAIN >>>>>>>>>>>>>")
+                HandleGetChain(writer, requestData)
+            }
         }
     }
 
-    fun HandleGetBalance(writer: PrintWriter?, requestData: RequestData){
+    fun HandleGetChain(writer: PrintWriter?, requestData: RequestData){
+        val address: String? = requestData.walletAddress
+        val blockchain = Blockchain()
+        val netUtils = NetUtils()
+        val responseData = GetChainResponse()
+        if (address !=null){
+            try {
+                val chain = blockchain.getChain(address)
+
+                responseData.respCode = 200
+                responseData.chain = chain
+                // send reponse
+                if (writer != null) {
+                    netUtils.SendResponse(writer, responseData)
+                }
+            }catch(e:Exception){
+                val responseData = GetChainResponse()
+                responseData.respCode = 500
+                responseData.respMessage = e.message.toString()
+                // send reponse
+                if (writer != null) {
+                    netUtils.SendResponse(writer, responseData)
+                }
+            }
+        }else{
+            responseData.respCode = 500
+            responseData.respMessage = "address not given"
+            // send reponse
+            if (writer != null) {
+                netUtils.SendResponse(writer, responseData)
+            }
+        }
 
     }
 

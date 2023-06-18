@@ -71,19 +71,19 @@ class Blockchain {
 
     fun AddBlock(block: BlockData, address: String): Boolean {
         val blocks =
-            ArrayList(List.of(*GetChain(address)))
+            ArrayList(List.of(*getChain(address)))
         blocks.add(block)
         return fileUtils.CreateFileObject(blocks, "data/$address/chain.bin")
     }
 
-    fun GetChain(address: String): Array<BlockData> {
+    fun getChain(address: String): Array<BlockData> {
         val obj: Any? = fileUtils.ReadFileObj("data/$address/chain.bin")
         val bkdata = obj as ArrayList<BlockData>
         return bkdata.toTypedArray()
     }
 
     fun IsBlockExists(address: String, BlockID: String?): Boolean {
-        val blocks = GetChain(address)
+        val blocks = getChain(address)
         for (block in blocks) {
             if (block.ID == BlockID) {
                 return true
@@ -126,7 +126,7 @@ class Blockchain {
     }
 
     fun GetBalance(address: String): Float {
-        val blocks = GetChain(address)
+        val blocks = getChain(address)
         var balance = 0f
         val netUtils = NetUtils()
 
@@ -253,7 +253,7 @@ class Blockchain {
             } else {
                 // this means that its not yet time
                 // check the limit
-                val blocks = GetChain(address)
+                val blocks = getChain(address)
                 var sentToday = 0f
                 for (block in blocks) {
 //                    System.out.println(block.Sender);

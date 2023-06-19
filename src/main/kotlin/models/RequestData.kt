@@ -37,6 +37,7 @@ class RequestData {
         var amount = 0f
         var isBroadcasted = false
         var blockID: String? = null
+        var senderPrivateKey:String? = null
     } //    public float Amount;
     //    public String SenderAddress;
 }

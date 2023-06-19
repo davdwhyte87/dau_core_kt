@@ -168,7 +168,7 @@ class Blockchain {
     @Throws(Exception::class)
     fun Transfer(
         senderAddress: String, recieverAddress: String, amount: Float,
-        isBroadcasted: Boolean, blockID: String?
+        isBroadcasted: Boolean, blockID: String?, senderPrivateKey:String?
     ) {
         val wallet = Wallet()
         if (!wallet.IsWalletExists(senderAddress) && !wallet.IsWalletExists(recieverAddress)) {
@@ -180,6 +180,9 @@ class Blockchain {
             throw Exception("Insufficient balance")
         }
 
+
+
+
         // check if a users vault limit is reached
         if (!CheckWalletLimitOK(senderAddress, amount)) {
             return
@@ -187,7 +190,11 @@ class Blockchain {
         val senderLastBlock = GetLastBlock(senderAddress)
         val recieverLastBlock = GetLastBlock(recieverAddress)
 
+        // check sender password
+        if(senderLastBlock.PrivateKeyHash != secUtils.GenerateHash(senderPrivateKey)){
 
+            throw Exception("Invalid private key")
+        }
         // check if the transaction has occured on this ledger before
 
         // new blocks

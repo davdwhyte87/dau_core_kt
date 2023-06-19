@@ -334,7 +334,8 @@ class Node {
             blockchain.Transfer(
                 requestData.transfer.senderAddress!!,
                 requestData.transfer.receiverAddress!!,
-                requestData.transfer.amount, requestData.transfer.isBroadcasted, requestData.transfer.blockID
+                requestData.transfer.amount, requestData.transfer.isBroadcasted, requestData.transfer.blockID,
+                requestData.transfer.senderPrivateKey
             )
             val responseData = ResponseData()
             responseData.respCode = 200

@@ -42,7 +42,7 @@ class Node {
 
     fun StartServer() {
         try {
-            ServerSocket(dotenv.get("PORT", "3000").toInt()).use { serverSocket ->
+            ServerSocket(dotenv.get("NODE_PORT", "3000").toInt()).use { serverSocket ->
 
                 // int SDK_INT = android.os.Build.VERSION.SDK_INT;
                 // if (SDK_INT > 8) {

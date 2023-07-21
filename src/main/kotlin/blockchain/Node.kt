@@ -40,6 +40,7 @@ class Node {
         return nodeServers.toTypedArray()
     }
 
+    @OptIn(ObsoleteCoroutinesApi::class)
     fun StartServer() {
         try {
             ServerSocket(dotenv.get("NODE_PORT", "3000").toInt()).use { serverSocket ->

@@ -53,8 +53,8 @@ internal object App {
         server.executor = null // creates a default executor
         server.start()
 
-        val node: Node = Node()
-        node.StartServer()
+//        val node: Node = Node()
+//        node.StartServer()
 
 //  node.GetAllNodes();
 

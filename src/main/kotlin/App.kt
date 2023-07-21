@@ -11,13 +11,13 @@ import java.util.*
 
 class MyHandler : HttpHandler {
     override fun handle(t: HttpExchange) {
-
+        val reqBody = t.requestBody.reader().readText()
 //        println(t.requestBody.reader().readText())
         val client = Socket("localhost", 100)
         val req = "{\"action\":\"CREATE_WALLET\",\"createWallet\":{\"walletName\":\"Jumoni\",\"password\":\"12345\"}}"
-
+        println(reqBody)
 //        client.outputStream.write(req.toByteArray())
-        client.outputStream.write(t.requestBody.reader().readText().toByteArray())
+        client.outputStream.write(reqBody.toByteArray())
         val input = client.getInputStream().read()
         val inp = BufferedReader(InputStreamReader(client.getInputStream()))
 //        println(inp.readLine())

@@ -8,7 +8,17 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
 
-
+class HelloHandler:HttpHandler{
+    override fun handle(exchange: HttpExchange?) {
+        val os = exchange?.responseBody
+        if (os != null) {
+            os.write("Hello I am totally fine".toByteArray())
+        }
+        if (os != null) {
+            os.close()
+        }
+    }
+}
 class MyHandler : HttpHandler {
     override fun handle(t: HttpExchange) {
         val reqBody = t.requestBody.reader().readText()
@@ -38,6 +48,7 @@ internal object App {
 
         val server = HttpServer.create(InetSocketAddress(8000), 0)
         server.createContext("/test", MyHandler())
+        server.createContext("/hello", HelloHandler())
         server.executor = null // creates a default executor
         server.start()
 

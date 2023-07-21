@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM zenika/kotlin
 WORKDIR /app
 EXPOSE 8000
 ADD ./out/artifacts/dau_core_kt_jar/dau_core_kt.jar .

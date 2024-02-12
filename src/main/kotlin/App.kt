@@ -28,7 +28,7 @@ class MyHandler : HttpHandler {
         val reqBody = t.requestBody.reader().readText()
 //        println(t.requestBody.reader().readText())
         val client = Socket("localhost", 100)
-        val req = "{\"action\":\"CREATE_WALLET\",\"createWallet\":{\"walletName\":\"Jumoni\",\"password\":\"12345\"}}"
+        val req = "{\"action\":\"CREATE_WALLET\",\"createWallet\":{\"walletName\":\"momon\",\"password\":\"12345\"}}"
         println(reqBody)
 //        client.outputStream.write(req.toByteArray())
         client.outputStream.write(reqBody.toByteArray())
